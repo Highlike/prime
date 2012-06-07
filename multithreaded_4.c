@@ -30,7 +30,7 @@ void *thread_main(void *arg) {
 
 	max = (*i + 1) * nums_per_thread + 2;
 
-	for (y = max - nums_per_thread; y < max; y++) {
+	for (y = max - nums_per_thread; y <= max - 2; y++) {
 #ifdef DEBUG
 		fprintf(stderr, "%llu ", max);
 #endif
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
 
 	num = strtoull(argv[1], NULL, 10);
 
-	nums_per_thread = (num - 1) / THREADS;
+	nums_per_thread = (num / THREADS);
 
 	printf("%llu: ", num);
 

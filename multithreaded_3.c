@@ -40,7 +40,8 @@ int main(int argc, char *argv[]) {
 
 	num = strtoull(argv[1], NULL, 10);
 
-	uint64_t args[num];
+	// uint64_t args[num];
+	uint64_t *args = calloc(num-1, sizeof(uint64_t)); 
 
 	printf("%llu: ", num);
 
@@ -49,11 +50,11 @@ int main(int argc, char *argv[]) {
 #ifdef DEBUG
 		fprintf(stderr, "%d ", x);
 #endif
-		args[y] = y;
-		pthread_create(&thread_id[x], NULL, isPrime, &args[y]);
+		args[y-2] = y;
+		pthread_create(&thread_id[x], NULL, isPrime, &args[y-2]);
 	}
 
-	for (x=0; x < THREADS; x++) {
+	for (x=0; x < THREADS-1; x++) {
 		pthread_join(thread_id[x], &exit_status);
 	}
 
