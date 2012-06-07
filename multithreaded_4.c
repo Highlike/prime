@@ -7,6 +7,7 @@
 #include <pthread.h>
 
 #define THREADS 5
+// #define DEBUG
 
 int nums_per_thread;
 
@@ -27,9 +28,12 @@ bool isPrime(uint64_t num) {
 void *thread_main(void *arg) {
 	uint64_t y, max, *i = (uint64_t*) arg;
 
-	max = *i * nums_per_thread + 2;
+	max = (*i + 1) * nums_per_thread + 2;
 
-	for (y = max - nums_per_thread; y < max; y++) {
+	for (y = max - nums_per_thread; y <= max; y++) {
+#ifdef DEBUG
+		fprintf(stderr, "%llu ", max);
+#endif
 		if (isPrime(y)) {
 			printf("%llu ", y);
 		}
@@ -39,6 +43,9 @@ void *thread_main(void *arg) {
 int main(int argc, char *argv[]) {
 	uint64_t num, y, args[THREADS];
 	pthread_t thread_id[THREADS];
+#ifdef DEBUG
+	stdout = freopen("/dev/null", "w", stdout);
+#endif
 
 	if (argc != 2) {
 		printf("usage: %s number\n", argv[0]);
@@ -47,7 +54,7 @@ int main(int argc, char *argv[]) {
 
 	num = strtoull(argv[1], NULL, 10);
 
-	nums_per_thread = (num / THREADS) + 1;
+	nums_per_thread = (num / THREADS);
 
 	printf("%llu: ", num);
 
