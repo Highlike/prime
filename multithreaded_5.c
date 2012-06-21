@@ -9,7 +9,10 @@
 #define THREADS 50
 // #define DEBUG
 
-int nums_per_thread;
+struct {
+	uint64_t beginning;
+	uint64_t end;
+} typedef num_range;
 
 bool isPrime(uint64_t num) {
 	uint64_t i, max;
@@ -26,11 +29,10 @@ bool isPrime(uint64_t num) {
 }
 
 void *thread_main(void *arg) {
-	uint64_t y, max, *i = (uint64_t*) arg;
+	uint64_t y;
+	num_range *prime_range = (num_range*) arg;
 
-	max = (*i + 1) * nums_per_thread + 2;
-
-	for (y = max - nums_per_thread; y <= max - 2; y++) {
+	for (y = prime_range->beginning; y < prime_range->end; y++) {
 #ifdef DEBUG
 		fprintf(stderr, "%llu ", max);
 #endif
@@ -41,7 +43,8 @@ void *thread_main(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-	uint64_t num, y, args[THREADS];
+	uint64_t num, y, nums_per_thread;
+	num_range *prime_range;
 	pthread_t thread_id[THREADS];
 #ifdef DEBUG
 	stdout = freopen("/dev/null", "w", stdout);
@@ -53,19 +56,23 @@ int main(int argc, char *argv[]) {
 	}
 
 	num = strtoull(argv[1], NULL, 10);
-
 	nums_per_thread = (num / THREADS);
+	if (! (prime_range = calloc(THREADS, sizeof(num_range))) ) {
+		printf("sorry, couldn't allocate memory!\n");
+		exit(EXIT_FAILURE);
+	}
 
 	printf("%llu: ", num);
-
 	for (y=0; y < THREADS; y++) {
-		args[y] = y;
-		pthread_create(&thread_id[y], NULL, thread_main, &args[y]);
+		prime_range[y].beginning = (y + 1) * nums_per_thread;
+		prime_range[y].end = prime_range[y].beginning + nums_per_thread;
+		pthread_create(&thread_id[y], NULL, thread_main, &prime_range[y]);
 	}
 
 	for (y=0; y < THREADS; y++) {
 		pthread_join(thread_id[y], NULL);
 	}
+	free(prime_range);
 
 	putchar('\n');
 }
